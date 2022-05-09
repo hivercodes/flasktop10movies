@@ -49,10 +49,18 @@ new_movie = Movie(
     img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
 )
 
-#db.session.add(new_movie)
-#db.session.commit()
 
 
+
+class Movieform(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    year = StringField('Release Year', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    rating = StringField('Rating', validators=[DataRequired()])
+    ranking = StringField('Ranking', validators=[DataRequired()])
+    review = StringField('Review', validators=[DataRequired()])
+    img_url = StringField('img_url', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
 @app.route("/")
@@ -61,10 +69,24 @@ def home():
     return render_template("index.html", all_movies=all_movies)
 
 
-@app.route("/edit")
+@app.route("/edit", methods=["POST", "GET"])
 def edit():
+    form = Movieform()
 
-    return render_template("edit.html")
+    if request.method == "POST" and form.validate_on_submit():
+        movie_id = request.form["id"]
+        print(movie_id)
+        movie_to_update = Movie.query.get(movie_id)
+        movie_to_update.ranking = float(request.form["ranking"])
+        print(request.form["ranking"])
+        movie_to_update.review = request.form["review"]
+        print(request.form["review"])
+        db.session.commit()
+        return redirect(url_for("home"))
+    movie_id = request.args.get("id")
+    movie_selected = Movie.query.get(movie_id)
+    return  render_template(("edit.html"), movie=movie_selected, form=form)
+
 
 
 if __name__ == '__main__':
