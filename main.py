@@ -64,7 +64,7 @@ class Movieform(FlaskForm):
 
 
 class EditRating(FlaskForm):
-    ranking = StringField('Ranking', validators=[DataRequired()])
+    rating = StringField('Rating', validators=[DataRequired()])
     review = StringField('Review', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
@@ -82,8 +82,8 @@ def edit():
         movie_id = request.form["id"]
         print(movie_id)
         movie_to_update = Movie.query.get(movie_id)
-        movie_to_update.ranking = float(request.form["ranking"])
-        print(request.form["ranking"])
+        movie_to_update.rating = float(request.form["rating"])
+        print(request.form["rating"])
         movie_to_update.review = request.form["review"]
         print(request.form["review"])
         db.session.commit()
@@ -91,6 +91,14 @@ def edit():
     movie_id = request.args.get("id")
     movie_selected = Movie.query.get(movie_id)
     return  render_template(("edit.html"), movie=movie_selected, form=form)
+
+@app.route("/delete", methods=["POST", "GET"])
+def delete():
+    movie_id = request.args.get("id")
+    movie_to_delete = Movie.query.get(movie_id)
+    db.session.delete(movie_to_delete)
+    db.session.commit()
+    return redirect(url_for("home"))
 
 
 
