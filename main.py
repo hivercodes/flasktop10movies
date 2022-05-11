@@ -52,14 +52,8 @@ new_movie = Movie(
 
 
 
-class Movieform(FlaskForm):
+class AddMovie(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    year = StringField('Release Year', validators=[DataRequired()])
-    description = StringField('Description', validators=[DataRequired()])
-    rating = StringField('Rating', validators=[DataRequired()])
-    ranking = StringField('Ranking', validators=[DataRequired()])
-    review = StringField('Review', validators=[DataRequired()])
-    img_url = StringField('img_url', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -80,12 +74,9 @@ def edit():
 
     if request.method == "POST" and form.validate_on_submit():
         movie_id = request.form["id"]
-        print(movie_id)
         movie_to_update = Movie.query.get(movie_id)
         movie_to_update.rating = float(request.form["rating"])
-        print(request.form["rating"])
         movie_to_update.review = request.form["review"]
-        print(request.form["review"])
         db.session.commit()
         return redirect(url_for("home"))
     movie_id = request.args.get("id")
@@ -100,7 +91,15 @@ def delete():
     db.session.commit()
     return redirect(url_for("home"))
 
+@app.route("/add", methods=["POST", "GET"])
+def add():
+    form = AddMovie()
 
+    if request.method == "POST" and form.validate_on_submit():
+        movie_title = request.form["title"]
+        print(movie_title)
+        return redirect(url_for("home"))
+    return render_template("add.html", form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
