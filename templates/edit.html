@@ -21,9 +21,7 @@
         <p>Movie Name: {{movie.title}}</p>
         <p>Current ranking {{movie.ranking}}</p>
          <input hidden="hidden" name="id" value={{movie.id}}>
-        <input name="Ranking" type="text" placeholder="New Ranking"><br>
-           <input name="Review" type="text" placeholder="Your Review"><br>
-        <button type="submit">Change Rating</button>
+        {{ wtf.quick_form(form) }}
     </form>
 </body>
 

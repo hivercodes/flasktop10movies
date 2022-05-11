@@ -63,6 +63,11 @@ class Movieform(FlaskForm):
     submit = SubmitField('Submit')
 
 
+class EditRating(FlaskForm):
+    ranking = StringField('Ranking', validators=[DataRequired()])
+    review = StringField('Review', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
 @app.route("/")
 def home():
     all_movies = db.session.query(Movie).all()
@@ -71,7 +76,7 @@ def home():
 
 @app.route("/edit", methods=["POST", "GET"])
 def edit():
-    form = Movieform()
+    form = EditRating()
 
     if request.method == "POST" and form.validate_on_submit():
         movie_id = request.form["id"]
