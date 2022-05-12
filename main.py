@@ -39,15 +39,15 @@ class Movie(db.Model):
 
 db.create_all()
 
-new_movie = Movie(
-    title="Phone Booth",
-    year=2002,
-    description="Publicist Stuart Shepard finds himself trapped in a phone booth, pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-    rating=7.3,
-    ranking=10,
-    review="My favourite character was the caller.",
-    img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
-)
+#new_movie = Movie(
+#    title="Phone Booth",
+#    year=2002,
+#    description="Publicist Stuart Shepard finds himself trapped in a phone booth, pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, Stuart's negotiation with the caller leads to a jaw-dropping climax.",
+#    rating=7.3,
+#    ranking=10,
+#    review="My favourite character was the caller.",
+#    img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
+#)
 
 
 
@@ -94,11 +94,42 @@ def delete():
 @app.route("/add", methods=["POST", "GET"])
 def add():
     form = AddMovie()
-
     if request.method == "POST" and form.validate_on_submit():
         movie_title = request.form["title"]
-        print(movie_title)
-        return redirect(url_for("home"))
+        encoded_title = requests.utils.quote(movie_title)
+        auth = []
+        with open("../api/moviedb") as apifile:
+            d = apifile.readlines()
+            for dat in d:
+                auth.append(str(dat.strip("\n")))
+
+        api = f"https://api.themoviedb.org/3/search/movie?api_key={auth[0]}&language=en-US&&query={encoded_title}&page=1&include_adult=false"
+        api_data = requests.get(api).json()
+        try:
+            title=api_data["results"][0]["original_title"]
+            year=api_data["results"][0]["release_date"]
+            description=api_data["results"][0]["overview"]
+            rating=api_data["results"][0]["vote_average"]
+            ranking="Unranked"
+            review="Unreviewd"
+            img_url=f'https://image.tmdb.org/t/p/w500/{api_data["results"][0]["poster_path"]}'
+        except IndexError:
+            return redirect(url_for("home"))
+
+
+        new_movie = Movie(
+            title=title,
+            year=year,
+            description=description,
+            rating=rating,
+            ranking=ranking,
+            review=review,
+            img_url=img_url
+         )
+        db.session.add(new_movie)
+        db.session.commit()
+        movie = Movie.query.filter_by(title=title).first()
+        return redirect(url_for("edit", id=movie.id))
     return render_template("add.html", form=form)
 
 if __name__ == '__main__':
