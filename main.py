@@ -65,7 +65,19 @@ class EditRating(FlaskForm):
 @app.route("/")
 def home():
     all_movies = db.session.query(Movie).all()
-    return render_template("index.html", all_movies=all_movies)
+    to_sort_movies = []
+
+    for mov in all_movies:
+        mov_dict = {"rating": mov.rating, "film": mov}
+        to_sort_movies.append(mov_dict)
+    sorted_movies = sorted(to_sort_movies, key = lambda i: i['rating'])
+    ranked_movies = []
+    for film in sorted_movies:
+        index = sorted_movies.index(film) + 1
+        film_dict = {"index": index, "film": film["film"]}
+        ranked_movies.append(film_dict)
+    print(ranked_movies)
+    return render_template("index.html", all_movies=ranked_movies)
 
 
 @app.route("/edit", methods=["POST", "GET"])
