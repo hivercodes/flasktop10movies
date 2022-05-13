@@ -16,27 +16,28 @@
   <h1 class="heading">My Top 10 Movies</h1>
   <p class="description">These are my all time favourite movies.</p>
    {% for movie in all_movies: %}
-
+         {% set film = movie["film"] %}
+        {% set rank = movie["index"] %}
   <div class="card" >
     <div class="front" style="background-image: url('https://www.shortlist.com/media/images/2019/05/the-30-coolest-alternative-movie-posters-ever-2-1556670563-K61a-column-width-inline.jpg');">
-         <div class="front" style="background-image: url('{{movie.img_url}}');">
-        <p class="large">{{movie.ranking}}</p>
+         <div class="front" style="background-image: url({{film.img_url}});">
+        <p class="large">{{rank}}</p>
             </div>
     </div>
     <div class="back">
       <div>
-    <div class="title"> {{movie.title}} <span class="release_date">{{movie.year}}</span></div>
+    <div class="title"> {{film.title}} <span class="release_date">{{film.year}}</span></div>
         <div class="rating">
-            <label>{{movie.rating}}</label>
+            <label>{{film.rating}}</label>
           <i class="fas fa-star star"></i>
         </div>
-          <p class="review">{{movie.review}}</p>
+          <p class="review">{{film.review}}</p>
         <p class="overview">
-            {{movie.description}}
+            {{film.description}}
         </p>
 
-        <a href="{{ url_for('edit', id=movie.id) }}" class="button">Update</a>
-        <a href="{{ url_for('delete', id=movie.id) }}" class="button delete-button">Delete</a>
+        <a href="{{ url_for('edit', id=film.id) }}" class="button">Update</a>
+        <a href="{{ url_for('delete', id=film.id) }}" class="button delete-button">Delete</a>
 
       </div>
     </div>

@@ -13,19 +13,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Bootstrap(app)
 
-"""
-id 
-title 
-year 
-description 
-rating 
-ranking
-review
-img_url
-"""
-
-
-
 #create table
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,18 +26,6 @@ class Movie(db.Model):
 
 db.create_all()
 
-#new_movie = Movie(
-#    title="Phone Booth",
-#    year=2002,
-#    description="Publicist Stuart Shepard finds himself trapped in a phone booth, pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-#    rating=7.3,
-#    ranking=10,
-#    review="My favourite character was the caller.",
-#    img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
-#)
-
-
-
 
 class AddMovie(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
@@ -62,6 +37,8 @@ class EditRating(FlaskForm):
     review = StringField('Review', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+
+#list all movies
 @app.route("/")
 def home():
     all_movies = db.session.query(Movie).all()
@@ -71,15 +48,20 @@ def home():
         mov_dict = {"rating": mov.rating, "film": mov}
         to_sort_movies.append(mov_dict)
     sorted_movies = sorted(to_sort_movies, key = lambda i: i['rating'])
+    reverse_sorting = sorted_movies[::1]
     ranked_movies = []
-    for film in sorted_movies:
+    sorted_movies.reverse()
+    for film in reverse_sorting:
         index = sorted_movies.index(film) + 1
         film_dict = {"index": index, "film": film["film"]}
         ranked_movies.append(film_dict)
-    print(ranked_movies)
+
+    for d in ranked_movies[::-1]:
+
+        print(d["film"].img_url)
     return render_template("index.html", all_movies=ranked_movies)
 
-
+#edit database
 @app.route("/edit", methods=["POST", "GET"])
 def edit():
     form = EditRating()
@@ -95,6 +77,7 @@ def edit():
     movie_selected = Movie.query.get(movie_id)
     return  render_template(("edit.html"), movie=movie_selected, form=form)
 
+#delete move from database
 @app.route("/delete", methods=["POST", "GET"])
 def delete():
     movie_id = request.args.get("id")
@@ -103,6 +86,7 @@ def delete():
     db.session.commit()
     return redirect(url_for("home"))
 
+#add movie to database
 @app.route("/add", methods=["POST", "GET"])
 def add():
     form = AddMovie()
@@ -143,6 +127,7 @@ def add():
         movie = Movie.query.filter_by(title=title).first()
         return redirect(url_for("edit", id=movie.id))
     return render_template("add.html", form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
