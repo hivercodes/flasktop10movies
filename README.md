@@ -1,1 +1,1 @@
-# flasktop10movies
+You need an api from https://www.themoviedb.org/ added to a file named ../api/moviedb for it to work
